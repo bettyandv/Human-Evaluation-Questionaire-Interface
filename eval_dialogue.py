@@ -103,7 +103,6 @@ eval_forms = create_eval_form()
 
 current_index = 0
 
-# question_id = questions[current_index]["id"]
 question_id = eval_forms[current_index]["id"]
 
 metadata = questions[current_index]["metadata"]
@@ -115,7 +114,6 @@ scenario_consistency = evaluation["consistency"]["scenario_consistency"]
 self_consistency = evaluation["consistency"]["self_consistency"]
 coherence = evaluation["coherence"]
 naturalness = evaluation["naturalness"]
-
 
 def update_consistency(
     location,
@@ -164,12 +162,10 @@ def update_consistency(
     }
     return "Submit Consistency Evaluation Result Successfully"
 
-
-
 def update_coherence(*args):
     clist = args
 
-    num_to_name = {
+    cnum_to_name = {
         0: "topic_relevance",
         1: "contextual_follow_up",
         2: "logical_continuity",
@@ -177,44 +173,59 @@ def update_coherence(*args):
         4: "script_alignment",
         5: "coherence_score",
     }
+    clist_length = len(cnum_to_name)
 
-    if len(coherence_list) % 6 != 0:
+    if len(coherence_list) % clist_length != 0:
         print("sth wrong with the coherence list length")
     
     count = 0
-    print(len(coherence), len(args))
+    # print(len(coherence), len(args))
     for ti, turn in enumerate(coherence):
         for k, v in turn.items():
             if k == "turn_id":
                 continue
-            key_name = num_to_name[count % len(num_to_name)]
+            key_name = cnum_to_name[count % clist_length]
             coherence[ti][key_name] = clist[count]
             count += 1
 
-    # def clean_questions(questions):
-    #     # 假设 questions 是一个字典，遍历其中的每个元素
-    #     for key, value in questions.items():
-    #         if isinstance(value, threading.Lock):
-    #             questions[key] = None  # 或者移除该元素
-    #     return questions
-
-    # 在序列化之前先清理 questions 对象
-    # cleaned_questions = clean_questions(questions)
-
-    # # 将更新后的数据保存到文件
-    # with open("dialogues.pkl", "wb") as f:
-    #     pickle.dump(
-    #         questions_coherence[current_index]["evaluation_result"]["coherence"], f
-    #     )
     eval_forms[current_index]["evaluation_result"]["coherence"] = coherence
     return "Submit Coherence Evaluation Result Successfully"
+
+def update_naturalness(*args):
+    nlist = args
+
+    nnum_to_name = {
+        0: "oral_style",
+        1: "length_and_flow",
+        2: "emotion_appropriateness",
+        3: "text_emotion_consistency",
+        4: "contextual_vocabulary_style",
+        5: "naturalness_score",
+    }
+    nlist_length = len(nnum_to_name)
+
+    if len(naturalness_list) % nlist_length != 0:
+        print("sth wrong with the naturalness list length")
+    
+    count = 0
+    # print(len(coherence), len(args))
+    for ti, turn in enumerate(naturalness):
+        for k, v in turn.items():
+            if k == "turn_id":
+                continue
+            key_name = nnum_to_name[count % nlist_length]
+            naturalness[ti][key_name] = nlist[count]
+            count += 1
+
+    eval_forms[current_index]["evaluation_result"]["naturalness"] = naturalness
+    return "Submit Naturalness Evaluation Result Successfully"
 
 
 def save_result():
     output_file = args.output_path + f"{current_index}.json"
     eval_forms[current_index]["evaluation_tag"] = True
     with open(output_file, "w") as f:
-        print(eval_forms[current_index])
+        # print(eval_forms[current_index])
         json.dump(eval_forms[current_index], f)
     return "Save Successfully"
 
@@ -222,8 +233,7 @@ def save_result():
 def next_page():
     global current_index
     current_index += 1
-    demo.refresh()
-    return current_index
+    # return gr.Textbox.update(value=f"Current Index: {current_index}")
 
 
 with gr.Blocks() as demo:
@@ -283,45 +293,49 @@ with gr.Blocks() as demo:
             with gr.Row():
                 gr.Textbox(
                     value=metadata["role_1"]["name"],
-                    label="Role 1 Name",
+                    label="Name",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["role_1"]["gender"],
-                    label="Role 1 Gender",
+                    label="Gender",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_1"]["age"],
-                    label="Role 1 Age",
+                    label="Age",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["role_1"]["occupation"],
-                    label="Role 1 Occupation",
+                    label="Occupation",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_1"]["nationality"],
-                    label="Role 1 Nationality",
+                    label="Nationality",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=", ".join(metadata["role_1"]["personality_traits"]),
-                    label="Role 1 Personality Traits",
+                    label="Personality Traits",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_1"]["relationship_context"],
-                    label="Role 1 Relationship Context",
+                    label="Relationship Context",
                     interactive=False,
+                    lines=2
                 )
             gr.Textbox(
                 value=metadata["role_1"]["self_introduction"],
-                label="Role 1 Self Introduction",
+                label="Self Introduction",
                 interactive=False,
                 lines=5,
             )
@@ -330,45 +344,49 @@ with gr.Blocks() as demo:
             with gr.Row():
                 gr.Textbox(
                     value=metadata["role_2"]["name"],
-                    label="Role 2 Name",
+                    label="Name",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["role_2"]["gender"],
-                    label="Role 2 Gender",
+                    label="Gender",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_2"]["age"],
-                    label="Role 2 Age",
+                    label="Age",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["role_2"]["occupation"],
-                    label="Role 2 Occupation",
+                    label="Occupation",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_2"]["nationality"],
-                    label="Role 2 Nationality",
+                    label="Nationality",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=", ".join(metadata["role_2"]["personality_traits"]),
-                    label="Role 2 Personality Traits",
+                    label="Personality Traits",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["role_2"]["relationship_context"],
-                    label="Role 2 Relationship Context",
+                    label="Relationship Context",
                     interactive=False,
+                    lines=2
                 )
             gr.Textbox(
                 value=metadata["role_2"]["self_introduction"],
-                label="Role 2 Self Introduction",
+                label="Self Introduction",
                 interactive=False,
                 lines=5,
             )
@@ -379,74 +397,76 @@ with gr.Blocks() as demo:
                     value=metadata["conversation_context"]["type"],
                     label="Conversation Type",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["conversation_context"]["main_topic"],
                     label="Main Topic",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["conversation_context"]["relationship_dynamic"],
                     label="Relationship Dynamic",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["conversation_context"]["emotional_tone"],
                     label="Emotional Tone",
                     interactive=False,
+                    lines=2
                 )
-                # with gr.Row():
                 gr.Textbox(
                     value=metadata["conversation_context"]["expected_duration"],
                     label="Expected Duration",
                     interactive=False,
+                    lines=2
                 )
                 gr.Textbox(
                     value=metadata["conversation_context"]["expected_turns"],
                     label="Expected Turns",
                     interactive=False,
+                    lines=2
                 )
             gr.Textbox(
                 value=", ".join(metadata["conversation_context"]["key_points"]),
                 label="Key Points",
                 interactive=False,
-                lines=5,
+                lines=2,
             )
 
-    interactive_components = {}
     with gr.Accordion("Information Below need to be filled"):
         gr.Markdown("# Consistency Evaluation")
         gr.Markdown("### Scenario Consistency")
-
-        location = gr.Checkbox(
-            label="location", value=scenario_consistency.get("location", True)
-        )
-        context = gr.Checkbox(
-            label="context", value=scenario_consistency.get("context", True)
-        )
-        conversation_context_type = gr.Checkbox(
-            label="conve_context_type",
-            value=scenario_consistency.get("conversation_context_type", True),
-        )
-        main_topic = gr.Checkbox(
-            label="main_topic",
-            value=scenario_consistency.get("main_topic", True),
-        )
-        # with gr.Row():
-        goal_alignment = gr.Checkbox(
-            label="goal_alignment",
-            value=scenario_consistency.get("goal_alignment", True),
-        )
-        role_nationality = gr.Checkbox(
-            label="role_nationality",
-            value=scenario_consistency.get("role_nationality", True),
-        )
-        overall_scenario_consistency_score = gr.Dropdown(
-            [1, 2, 3, 4, 5],
-            label="overall_scenario_consistency_score",
-            value=scenario_consistency.get("overall_scenario_consistency_score", 5),
-        )
+        with gr.Row():
+            location = gr.Checkbox(
+                label="location", value=scenario_consistency.get("location", True)
+            )
+            context = gr.Checkbox(
+                label="context", value=scenario_consistency.get("context", True)
+            )
+            conversation_context_type = gr.Checkbox(
+                label="conve_context_type",
+                value=scenario_consistency.get("conversation_context_type", True),
+            )
+            main_topic = gr.Checkbox(
+                label="main_topic",
+                value=scenario_consistency.get("main_topic", True),
+            )
+            goal_alignment = gr.Checkbox(
+                label="goal_alignment",
+                value=scenario_consistency.get("goal_alignment", True),
+            )
+            role_nationality = gr.Checkbox(
+                label="role_nationality",
+                value=scenario_consistency.get("role_nationality", True),
+            )
+            overall_scenario_consistency_score = gr.Dropdown(
+                [1, 2, 3, 4, 5],
+                label="overall_scenario_consistency_score",
+                value=scenario_consistency.get("overall_scenario_consistency_score", 5),
+            )
 
         gr.Markdown("### Self Consistency")
         with gr.Row():
@@ -464,7 +484,6 @@ with gr.Blocks() as demo:
                 label="role_relationship",
                 value=self_consistency.get("role_relationship", True),
             )
-            # with gr.Row():
             time_of_day = gr.Checkbox(
                 label="time_of_day", value=self_consistency.get("time_of_day", True)
             )
@@ -480,7 +499,6 @@ with gr.Blocks() as demo:
                 label="self_introduction",
                 value=self_consistency.get("self_introduction", True),
             )
-            # with gr.Row():
             setting_context_alignment = gr.Checkbox(
                 label="setting_context_alignment",
                 value=self_consistency.get("setting_context_alignment", True),
@@ -560,33 +578,73 @@ with gr.Blocks() as demo:
                         # 动态赋值给变量 coherence_score_0 = dropdown
                         globals()[f"coherence_{key}_{turn_id}"] = dropdown
 
+            gr.Markdown("### Naturalness Evaluation")
+            with gr.Row():
+                for key, value in evaluation["naturalness"][turn_id].items():
+                    if key == "turn_id":  # 跳过 turn_id
+                        continue
+                    if isinstance(value, bool):  # 对于布尔值创建 Checkbox
+                        checkbox = gr.Checkbox(label=key, value=value, interactive=True)
+                        # 动态赋值给变量 topic_relevance_0 = checkbox
+                        globals()[
+                            f"naturalness_{key}_{turn_id}"
+                        ] = checkbox  # 使用 globals() 动态创建变量名
+
+                    elif isinstance(
+                        value, int
+                    ):  # 对于整数（coherence_score）创建 Dropdown
+                        dropdown = gr.Dropdown(
+                            [1, 2, 3, 4, 5],
+                            label=key,
+                            value=value,
+                            interactive=True,
+                        )
+                        # 动态赋值给变量 coherence_score_0 = dropdown
+                        globals()[f"naturalness_{key}_{turn_id}"] = dropdown
+
     coherence_var_list = [
         var_name for var_name in globals() if var_name.startswith("coherence_")
     ]
     # 获取对应的对象并存入列表
     coherence_list = [globals()[var_name] for var_name in coherence_var_list]
-    print(coherence_var_list[0])
-    print(globals()[coherence_var_list[0]])
-    print(coherence_list[0])
+            
+    
+    naturalness_var_list = [
+        var_name for var_name in globals() if var_name.startswith("naturalness_")
+    ]
+    # 获取对应的对象并存入列表
+    naturalness_list = [globals()[var_name] for var_name in naturalness_var_list]
+    
+    with gr.Row():
+        # Consistency button
+        submit_coherence_btn = gr.Button("Submit Coherence Result")
+        submit_coherence_btn.click(
+            update_coherence,
+            inputs=coherence_list,
+            outputs=gr.Textbox(label="Submit Feedback"),
+        )
+        # Naturalness button
+        submit_naturalness_btn = gr.Button("Submit Naturalness Result")
+        submit_naturalness_btn.click(
+            update_naturalness,
+            inputs=naturalness_list,
+            outputs=gr.Textbox(label="Submit Feedback"),
+        )
 
-    # Consistency button
-    submit_coherence_btn = gr.Button("Submit Coherence Result")
-    submit_coherence_btn.click(
-        update_coherence,
-        inputs=coherence_list,
-        outputs=gr.Textbox(label="Submit Feedback"),
-    )
-    save_btn = gr.Button("Save Result")
-    save_btn.click(
-        save_result,
-        inputs=[],
-        outputs=gr.Textbox(label="Save Feedback"),
-    )
-    next_btn = gr.Button("Next")
+        # Save button
+        save_btn = gr.Button("Save Result")
+        save_btn.click(
+            save_result,
+            inputs=[],
+            outputs=gr.Textbox(label="Save Feedback"),
+        )
+    
+    # Next button
+    next_btn = gr.Button("Next Question")
     next_btn.click(
-        next_page,
-        inputs=[],
-        outputs=[],
+    next_page,
+    inputs=[],
+    outputs=[],  # 确保这里是你想更新的组件
     )
 
     demo.launch()
